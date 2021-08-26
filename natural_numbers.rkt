@@ -2,6 +2,13 @@
 ; Holds functions and proofs for natural numbers
 (require "main.rkt")
 
+(define predecessor
+  (rec-func "predecssor"
+            (to (natural) (natural))
+            "num"
+            (zero)
+            (get-var "num")))
+
 (define add-func
   (func (to (prod (natural) (natural)) (natural))
         "nums"
@@ -59,3 +66,21 @@
 
 (define (pow num0 num1)
   (input pow-func (pair num0 num1)))
+
+(define (display-num n)
+  (match n
+    [(zero) 0]
+    [(succ m) (+ 1 (display m))]))
+
+(define is-even
+  (rec-func "is-even"
+            (to (natural) (natural))
+            "num"
+            (True)
+            (negation (input (get-var "is-even")
+                             (get-var "num")))))
+
+(define tautology0
+  (start (input is-even (zero))
+         (expand (end))))
+
