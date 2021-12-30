@@ -1,6 +1,62 @@
 #lang racket
 (provide (all-defined-out))
 
+#| Types: Holds the types of different variables
+    (natural) - represents the natural number type
+    (boolean) - represents the boolean value type
+    (to type0 type1) - represents the type of a function that takes in values of type0 and returns values of type1
+    (prod type0 type1) - represents a pair, where the first element is of type0 and the second is of type1
+
+   Boolean Expressions: Used to manipulate boolean values
+    (proposition value) - Holds a boolean value representing some proposition value. value is a string.
+    (conjunction prop0 prop1) - Holds a conjunction of two boolean expressions.
+    (disjunction prop0 prop1) - Holds a disjunction of two boolean expressions.
+    (implication prop0 prop1) - Holds the expression prop0 implies prop1, where prop0 and prop1 are boolean expressions.
+    (negation prop) - Holds the negation of the boolean expression prop.
+    (contrapositive prop) - Holds the contrapositive of prop, defined when prop is an implication
+
+   Boolean Values: Used to assign boolean values
+    (True) - Represents a true boolean value
+    (False) - Represents a false boolean value
+
+   Natural Numbers & Operations: Used to assign numbers to values
+    (zero) - Holds the number zero
+    (succ n) - Holds the successor of the number n
+
+   Identifiers: Used to structure a proof
+    (start statement proof) - Placed at the start of a proof, where statement is what is to be proved, and proof is the proof of the statement
+    (end) - Placed at the end of a proof
+
+   Expressions: Applies a transformation to values that can be placed within statement arguments
+    (get-var name) - Returns the value stored in the variable name
+    (modus-ponens hypo impl) - Returns the conclusion of the implicatioin impl if the hypothesis hypo is equal to the hypothesis of impl
+    (take pos prop) - Given a conjunction prop, return the proposition in the pos'th position
+
+   Statements: Performs a legal logical manipulation of the hypothesis to move towards the conclusion
+    (take-conc pos rest) - Takes the pos'th argument from a disjunction rest
+    (let name prop rest) - Assigns to a variable named name a value prop in the namespace of the proof in rest
+    (apply prop rest) - Compares the conclusion to the value in prop, making the value to prove True if they are equal. This is used typically to end a proof
+    (split left right) - If the statement to prove is a conjuction, then this splits the proof into a proof of the right and a proof of the left, returning true if and only if both are proven
+    (to-false rest) - Changes the statement to prove to false, to be used in a proof by contradiction
+    (assume-hyp name rest) - If the statement to prove is an implication, this assumes the hypothesis, naming it name in the namespace of rest, and changes teh statement to prove to the conclusion of the statement.
+    (print-exp prop rest) - prints the value of prop to the console for the purpose of debugging, returns true if the statement is proven in rest
+
+    (func type arg body) - defines a function with type type, that takes in the argument arg (use pairs for multiple arguments), and performs the operations in body
+    (rec-func name type arg base-case rec-case) - defined as above, but where the function is given the name name, defined in the namespace of its body to be used for recursive calls.
+                                                  the base-case is called when the function is applied with 0, and rec-case otherwise
+    (input func arg) - returns the value of function func when the argument arg is inputted
+    (left arg) - returns the left argument in a pair of values of type t0 if arg is of type (prod t0 t1)
+    (right arg) - returns the right argument in a pair of values of type t1 if arg is of type (prod t0 t1)
+    (pair arg0 arg1) - returns a pair with arg0 as the left argument and arg1 as the right of type (prod t0 t1) if the type of arg0 is t0 and the type of arg1 is t1
+
+    (induction var base-case inductive-case) - starts a proof by induction on a natural number var. The statement to prove in base-case is when var is zero, and the statment to
+                                               prove in the inductive-case is when var is n + 1 for some value n, with the added assumption that the conclusion is true for the value of n
+    (expand rest) - if the statement to prove is a boolean function, this expands the statement into the definition of the boolean function. This checks if the statement being called is with
+                    the base case. In conjuction with induction, this can be used to prove most statements on natural numbers.
+
+TODO: Write documentation for semantics of the proofs
+|#
+
 ; Types
 (struct type () #:transparent)
 (struct natural type () #:transparent)
@@ -14,21 +70,6 @@
 (struct disjunction boolean (prop0 prop1) #:transparent)
 (struct implication boolean (prop0 prop1) #:transparent)
 (struct negation boolean (prop))
-
-#| Boolean Expressions:
-    (proposition value) - Holds a boolean value representing some proposition value. value is a string.
-    (conjunction prop0 prop1) - Holds a conjunction of two boolean expressions.
-    (disjunction prop0 prop1) - Holds a disjunction of two boolean expressions.
-    (implication prop0 prop1) - Holds the expression prop0 implies prop1, where prop0 and prop1 are boolean expressions.
-    (negation prop) - Holds the negation of the boolean expression prop.
-
-   Natural Numbers & Operations:
-    (zero) - Holds the number zero
-    (succ n) - Holds the successor of the number n
-
-TODO: Finish basic documentation of each struct
-TODO: Write documentation for semantics of the proofs
-|#
 
 ; natural numbers and operations
 (struct zero natural () #:transparent)
@@ -198,7 +239,6 @@ TODO: Write documentation for semantics of the proofs
 
 
 ; TODO
-; - Create documentation for each struct
 ; - Build tests for the function prove
 ; - Create theorems that, after proven, can take in
 ;   multiple assumptions and result in a new assumption (!)
